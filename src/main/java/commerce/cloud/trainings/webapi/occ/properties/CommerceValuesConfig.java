@@ -12,19 +12,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommerceValuesConfig {
 
-    @Value("${commerce.cloud.store.domain}")
+    @Value("${commerce.cloud.store.domain.1}")
     private String storeDomain;
 
-    @Value("${commerce.cloud.admin.domain}")
+    @Value("${commerce.cloud.admin.domain.1}")
     private String adminDomain;
 
-    @Value("${commerce.cloud.access.admin}")
+    @Value("${commerce.cloud.access.admin.1}")
     private String adminLink;
 
-    @Value("${commerce.cloud.access.agent}")
+    @Value("${commerce.cloud.access.agent.1}")
     private String agentLink;
 
-    @Value("${commerce.cloud.app.id}")
+    @Value("${commerce.cloud.app.id.1}")
     private String applicationID;
 
     public String getAdminDomain() {

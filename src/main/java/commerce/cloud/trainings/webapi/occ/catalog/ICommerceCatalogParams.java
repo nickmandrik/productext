@@ -8,7 +8,7 @@ package commerce.cloud.trainings.webapi.occ.catalog;
 
 public interface ICommerceCatalogParams {
     public static final String TYPE_EXPORT_PARAM_ARG = "type";
-    public static final String PRODUCT_EXPORT_PARAM_VALUE = "Product";
+    public static final String PRODUCT_EXPORT_PARAM_VALUE = "Collection";
 
     public static final String TIME_ZONE_OFFSET_EXPORT_PARAM_ARG = "timeZoneOffset";
     public static final String MINSK_TIME_ZONE_OFFSET_EXPORT_PARAM_VALUE = "-180";

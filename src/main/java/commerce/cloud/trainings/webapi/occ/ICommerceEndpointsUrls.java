@@ -7,7 +7,7 @@ package commerce.cloud.trainings.webapi.occ;
 
 
 public interface ICommerceEndpointsUrls {
-    String POST_CCADMIN_LOGIN = "ccadminui/v1/login";
+    String POST_CCADMIN_LOGIN = "ccadmin/v1/login";
     String POST_CCADMIN_LOGOUT = "ccadmin/v1/logout";
     String POST_CCADMIN_REFRESH = "ccadmin/v1/refresh";
     String POST_CCADMIN_VERIFY = "ccadmin/v1/verify";

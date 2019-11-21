@@ -1,5 +1,6 @@
 package commerce.cloud.trainings.webapi.controller.commerce;
 
+import commerce.cloud.trainings.webapi.occ.base.CommerceBaseRestUtil;
 import commerce.cloud.trainings.webapi.occ.base.CommerceRestException;
 import commerce.cloud.trainings.webapi.occ.catalog.CommerceCatalogRestUtil;
 import commerce.cloud.trainings.webapi.occ.catalog.model.ExportCatalogModel;
@@ -11,6 +12,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
@@ -33,6 +36,7 @@ import java.util.Map;
 @RestController
 public class CommerceCatalogController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommerceBaseRestUtil.class);
     private CommerceCatalogRestUtil commerceCatalogRestUtil;
 
     @Autowired

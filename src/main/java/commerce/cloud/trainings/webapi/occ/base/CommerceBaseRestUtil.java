@@ -2,7 +2,6 @@ package commerce.cloud.trainings.webapi.occ.base;
 
 import commerce.cloud.trainings.webapi.occ.ICommerceEndpointsUrls;
 import commerce.cloud.trainings.webapi.occ.properties.CommerceValuesConfig;
-import javafx.util.Pair;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
@@ -24,10 +23,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 
@@ -56,7 +52,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
     /**
      * Validate Commerce Cloud oauth token and execute {@link HttpRequestBase} request.
      */
-    public CloseableHttpResponse validateTokenAndExecuteRequest(HttpRequestBase initialRequest) throws CommerceRestException {
+    public CloseableHttpResponse validateTokenLogAndExecuteRequest(HttpRequestBase initialRequest) throws CommerceRestException {
         validateOauthToken();
         initialRequest.setHeader(AUTHORIZATION_HEADER_ARG,BEARER_SPACE_HEADER_VALUE + commerceAccessToken);
         String url = initialRequest.getURI().getPath();
@@ -76,6 +72,20 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
 
         LOGGER.info("Response from OCC: " + url + ". Status code: " + httpResponse.getStatusLine().getStatusCode());
         /*refreshOauthToken();*/
+        return httpResponse;
+    }
+
+    public CloseableHttpResponse validateTokenAndExecuteRequest(HttpRequestBase initialRequest) throws CommerceRestException {
+        validateOauthToken();
+        initialRequest.setHeader(AUTHORIZATION_HEADER_ARG,BEARER_SPACE_HEADER_VALUE + commerceAccessToken);
+        String url = initialRequest.getURI().getPath();
+        if(initialRequest.getURI().getQuery() != null) {
+            url += initialRequest.getURI().getQuery();
+        }
+        LOGGER.info("Execute OCC request: " + url + " ...");
+        CloseableHttpResponse httpResponse = executeRequest(initialRequest);
+
+        LOGGER.info("Response from OCC: " + url + ". Status code: " + httpResponse.getStatusLine().getStatusCode());
         return httpResponse;
     }
 
@@ -107,13 +117,13 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
 
         uploadRequest.setEntity(entity);
 
-        return validateTokenAndExecuteRequest(uploadRequest);
+        return validateTokenLogAndExecuteRequest(uploadRequest);
     }
 
     /**
      * Call to login in Oracle Commerce Cloud.
      */
-    private Pair<CloseableHttpResponse, String> loginCall() throws CommerceRestException {
+    private Map.Entry<CloseableHttpResponse, String> loginCall() throws CommerceRestException {
         /*final String url = valuesConfiguration.getAdminDomain() + POST_CCADMIN_LOGIN;
 
         HttpPost postRequest = new HttpPost(url);
@@ -138,8 +148,8 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
 
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("grant_type", "password"));
-        params.add(new BasicNameValuePair("username", "anastasia.logvinets@vsgcommerce.com"));
-        params.add(new BasicNameValuePair("password", "kind6iVy"));
+        params.add(new BasicNameValuePair("username", "mike.reutski@vsgcommerce.com"));
+        params.add(new BasicNameValuePair("password", "4F&a12ND11!"));
         try {
             postRequest.setEntity(new UrlEncodedFormEntity(params));
         } catch (UnsupportedEncodingException e) {
@@ -155,7 +165,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
      * @param isRefreshable indicates whether is need to refresh the oauth token.
      *                      True - token will be refreshed, else - only check status of access
      */
-    private Pair<CloseableHttpResponse, String> verifyTokenCall(boolean isRefreshable) throws CommerceRestException {
+    private Map.Entry<CloseableHttpResponse, String> verifyTokenCall(boolean isRefreshable) throws CommerceRestException {
         String url = valuesConfiguration.getAdminDomain();
 
         if(isRefreshable) {
@@ -183,7 +193,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
     /**
      * Call to logout in Oracle Commerce Cloud.
      */
-    private Pair<CloseableHttpResponse, String> logoutCall() throws CommerceRestException {
+    private Map.Entry<CloseableHttpResponse, String> logoutCall() throws CommerceRestException {
         final String url = valuesConfiguration.getAdminDomain() + POST_CCADMIN_LOGOUT;
 
         HttpPost postRequest = new HttpPost(url);
@@ -196,7 +206,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
      * Validate Commerce Cloud token and access to the OCC Rest endpoints.
      */
     private void validateOauthToken() throws CommerceRestException {
-        Pair<CloseableHttpResponse, String> verifyOauthResponse = verifyTokenCall(false);
+        Map.Entry<CloseableHttpResponse, String> verifyOauthResponse = verifyTokenCall(false);
         try {
             String verifyResponseStr = verifyOauthResponse.getValue();
             JSONObject jsonVerifyResponse = new JSONObject(verifyResponseStr);
@@ -209,7 +219,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
                 LOGGER.info("Oauth token wasn't verified. Attempt to login.");
                 commerceAccessToken = null;
                 for(int ind = 0; ind < AMOUNT_POSSIBLE_REQUESTS && commerceAccessToken == null; ind++) {
-                    Pair<CloseableHttpResponse, String> oauthResponse = loginCall();
+                    Map.Entry<CloseableHttpResponse, String> oauthResponse = loginCall();
                     String loginResponseStr = oauthResponse.getValue();
                     JSONObject jsonResponse = new JSONObject(loginResponseStr);
                     commerceAccessToken = jsonResponse.getString(ACCESS_TOKEN_OUTPUT_PARAM_ARG);
@@ -225,7 +235,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
      * Refresh Commerce Cloud token and access to the OCC Rest endpoints.
      */
     private void refreshOauthToken() throws CommerceRestException {
-        Pair<CloseableHttpResponse, String> refreshOauthResponse = verifyTokenCall(true);
+        Map.Entry<CloseableHttpResponse, String> refreshOauthResponse = verifyTokenCall(true);
         try {
             String refreshResponseStr = refreshOauthResponse.getValue();
             JSONObject jsonRefreshResponse = new JSONObject(refreshResponseStr);
@@ -239,7 +249,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
     /**
      * Log response from Commerce Cloud
      */
-    private Pair<CloseableHttpResponse, String> logResponse(CloseableHttpResponse response, URI uri)
+    private Map.Entry<CloseableHttpResponse, String> logResponse(CloseableHttpResponse response, URI uri)
             throws CommerceRestException {
         String bodyAsString;
         try {
@@ -255,7 +265,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
         } catch (IOException e) {
             throw new CommerceRestException("Log error.", e);
         }
-        return new Pair<>(response, bodyAsString);
+        return new AbstractMap.SimpleEntry<>(response, bodyAsString);
     }
 
     /**
@@ -277,7 +287,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
     /**
      * Start HTTP Client to connect with Oracle Commerce Cloud.
      */
-    public void startHttpClient() {
+    private void startHttpClient() {
         httpClient = HttpClients.createDefault();
     }
 
@@ -362,7 +372,7 @@ public class CommerceBaseRestUtil implements ICommerceEndpointsUrls, ICommerceBa
         }
 
 
-        return validateTokenAndExecuteRequest(request);
+        return validateTokenLogAndExecuteRequest(request);
     }
 
     /* Getter and Setters */
